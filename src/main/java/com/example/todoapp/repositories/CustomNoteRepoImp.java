@@ -12,7 +12,7 @@ public class CustomNoteRepoImp implements CustomNoteRepo {
     private EntityManager entityManager;
     @Override
     @SuppressWarnings("unchecked")
-    public List<Note> findNoteById(Long id){
+    public List<Note> findNoteByUserId(Long id){
         return entityManager.createQuery(
                 "Select n from Note n where n.user.id = :id", Note.class)
                 .unwrap(Query.class)

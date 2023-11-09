@@ -5,12 +5,9 @@ import com.example.todoapp.expception.IncorrectLoginCredential;
 import com.example.todoapp.expception.UserExistException;
 import com.example.todoapp.expception.UserNotFoundException;
 import com.example.todoapp.dto.LoginDto;
-import com.example.todoapp.dto.UserDto;
-import com.example.todoapp.models.Note;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.NoteRepository;
 import com.example.todoapp.repositories.UserRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,9 +53,5 @@ public class UserService {
         ));
         return signUpDto.getUserName();
     }
-    public UserDto getUser(String userName){
-        User user = userRepository.findUserByUserName(userName);
-        List<Note> notes = noteRepository.findNoteById(user.getId());
-        return new UserDto(userName,notes);
-    }
+
 }

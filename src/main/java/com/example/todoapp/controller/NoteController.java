@@ -11,28 +11,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 public class NoteController {
     @Autowired
     private NoteService noteService;
-    @PostMapping("/addNote")
+    @PostMapping("api/v1/note")
     public ResponseEntity<String> addNote(@RequestBody NoteDto note){
-       return new ResponseEntity<>("Add note successfully", HttpStatus.OK);
+        noteService.addNote(note);
+        return new ResponseEntity<>("Add note successfully", HttpStatus.OK);
     }
-    @GetMapping("/notes")
-    public List<Note> getAllNotes(){
-        return noteService.getAllNotes();
+    @GetMapping("api/v1/notes")
+    public List<NoteDto> getAllNotes(@RequestBody String userName){
+        return noteService.getAllNotes(userName);
     }
-    @GetMapping("/notes/{id}")
+    @GetMapping("api/v1/notes/{id}")
     public Note getNoteById(@PathVariable long id){
         return noteService.getNoteById(id);
     }
-    @DeleteMapping("notes/{id}")
-    @ResponseBody
+    @DeleteMapping("api/v1/notes/{id}")
     public String deleteNoteById(@PathVariable long id){
         noteService.deleteNote(id);
         return "Note " + id + " deleted";
     }
-    @PatchMapping("notes/{id}")
+    @PatchMapping("api/v1/notes/{id}")
     public Note updateNote(@RequestBody Note note){
         return noteService.updateNote(note);
     }

@@ -22,11 +22,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/api/v1/user")
-    public ResponseEntity<UserDto> getUser(String userName){
-        return new ResponseEntity<>(userService.getUser(userName),HttpStatus.OK);
 
-    }
     @PostMapping("/api/v1/login")
     public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
         String userName = userService.login(loginDto);
