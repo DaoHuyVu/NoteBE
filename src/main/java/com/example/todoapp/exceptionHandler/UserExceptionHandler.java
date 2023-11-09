@@ -1,5 +1,6 @@
 package com.example.todoapp.exceptionHandler;
 
+
 import com.example.todoapp.ErrorResponse;
 import com.example.todoapp.expception.IncorrectLoginCredential;
 import com.example.todoapp.expception.UserExistException;
@@ -18,23 +19,25 @@ import java.util.Date;
 public class UserExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({UserNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException e){
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException e) {
         return new ResponseEntity<>(
-                new ErrorResponse(new Date(),e.getMessage(),e.getStatus(),HttpStatus.NOT_FOUND)
-                ,HttpStatus.NOT_FOUND
+                new ErrorResponse(new Date(), e.getMessage(), e.getStatus(), HttpStatus.NOT_FOUND)
+                , HttpStatus.NOT_FOUND
         );
     }
+
     @ExceptionHandler({IncorrectLoginCredential.class})
-    public ResponseEntity<ErrorResponse> handleIncorrectCredential(IncorrectLoginCredential e){
+    public ResponseEntity<ErrorResponse> handleIncorrectCredential(IncorrectLoginCredential e) {
         return new ResponseEntity<>(
-                new ErrorResponse(new Date(),e.getMessage(),e.getStatus(),HttpStatus.UNAUTHORIZED)
-        ,HttpStatus.UNAUTHORIZED
+                new ErrorResponse(new Date(), e.getMessage(), e.getStatus(), HttpStatus.UNAUTHORIZED)
+                , HttpStatus.UNAUTHORIZED
         );
     }
+
     @ExceptionHandler({UserExistException.class})
-    public ResponseEntity<ErrorResponse> handleUserExist(UserExistException e){
+    public ResponseEntity<ErrorResponse> handleUserExist(UserExistException e) {
         return new ResponseEntity<>(
-                new ErrorResponse(new Date(),e.getMessage(),e.getStatus(),HttpStatus.CONFLICT),
+                new ErrorResponse(new Date(), e.getMessage(), e.getStatus(), HttpStatus.CONFLICT),
                 HttpStatus.CONFLICT
         );
     }

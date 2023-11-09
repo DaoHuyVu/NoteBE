@@ -3,7 +3,9 @@ package com.example.todoapp.controller;
 import com.example.todoapp.dto.LoginDto;
 import com.example.todoapp.dto.SignUpDto;
 import com.example.todoapp.dto.UserDto;
+
 import com.example.todoapp.models.Note;
+
 import com.example.todoapp.models.User;
 import com.example.todoapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 @RestController
@@ -20,15 +21,18 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+
     @GetMapping("/api/v1/user")
     public ResponseEntity<UserDto> getUser(String userName){
         return new ResponseEntity<>(userService.getUser(userName),HttpStatus.OK);
 
     }
     @PostMapping("/api/v1/login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
         String userName = userService.login(loginDto);
         return new ResponseEntity<>(userName, HttpStatus.OK);
+
+
     }
     @PostMapping("/api/v1/signup")
     public ResponseEntity<String> signUp(@RequestBody SignUpDto signUpDto){
