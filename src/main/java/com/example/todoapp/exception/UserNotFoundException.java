@@ -1,4 +1,4 @@
-package com.example.todoapp.expception;
+package com.example.todoapp.exception;
 
 
 import lombok.AllArgsConstructor;
@@ -8,5 +8,4 @@ import lombok.Getter;
 @Getter
 public class UserNotFoundException extends RuntimeException{
     private String message ;
-    private int status;
 }

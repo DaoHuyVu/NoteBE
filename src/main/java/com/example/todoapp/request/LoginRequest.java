@@ -1,8 +1,8 @@
-package com.example.todoapp.dto;
+package com.example.todoapp.request;
 
 import lombok.Data;
 @Data
-public class LoginDto {
+public class LoginRequest {
     private String userName;
     private String password;
 }

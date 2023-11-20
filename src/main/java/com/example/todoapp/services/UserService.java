@@ -1,57 +1,81 @@
 package com.example.todoapp.services;
 
-import com.example.todoapp.dto.SignUpDto;
-import com.example.todoapp.expception.IncorrectLoginCredential;
-import com.example.todoapp.expception.UserExistException;
-import com.example.todoapp.expception.UserNotFoundException;
-import com.example.todoapp.dto.LoginDto;
+import com.example.todoapp.models.ERole;
+import com.example.todoapp.models.Role;
+import com.example.todoapp.repositories.RoleRepo;
+import com.example.todoapp.request.SignUpRequest;
+import com.example.todoapp.exception.UserExistException;
+import com.example.todoapp.exception.UserNotFoundException;
+import com.example.todoapp.request.LoginRequest;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.NoteRepository;
 import com.example.todoapp.repositories.UserRepository;
+import com.example.todoapp.response.AuthResponse;
+import com.example.todoapp.security.jwt.JwtUtils;
+import com.example.todoapp.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-
+@Transactional
 @Service
 public class UserService {
     @Autowired
-    private NoteRepository noteRepository;
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BCryptPasswordEncoder bCrypt;
+    private RoleRepo roleRepo;
+    public AuthResponse login(LoginRequest loginRequest){
 
-    public String login(LoginDto loginDto){
-        User user = userRepository.findUserByUserName(loginDto.getUserName());
-        if(user == null){
-            user = userRepository.findUserByEmail(loginDto.getUserName());
-            if(user == null)
-                throw new UserNotFoundException("User not found",404);
-        }
-        if(bCrypt.matches(loginDto.getPassword(),user.getPassword())){
-            return user.getUserName();
-        }
-        throw new IncorrectLoginCredential("Username or password is incorrect",401);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUserName(),
+                        loginRequest.getPassword()
+                ));
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        String token = jwtUtils.generateTokenFromUserName(userDetails.getUsername());
+        return new AuthResponse(token);
     }
-    public String signUp(SignUpDto signUpDto){
-        User user = userRepository.findUserByUserName(signUpDto.getUserName());
-        if(user != null) throw new UserExistException("User already exist",409);
+    public AuthResponse signUp(SignUpRequest signUpRequest){
+        if(userRepository.existsByUserName(signUpRequest.getUserName()))
+            throw new UserExistException("User already exist");
 
-        user = userRepository.findUserByEmail(signUpDto.getEmail());
-        if(user != null) throw new UserExistException("This email was already been used",409);
-
+        if(userRepository.existsByEmail(signUpRequest.getEmail()))
+            throw new UserExistException("This email has already been used");
+        Set<Role> roles = new HashSet<>();
+        Role role = roleRepo.findByRole(ERole.USER);
+        roles.add(role);
         userRepository.save(new User(
-                signUpDto.getEmail(),
-                signUpDto.getUserName(),
-                bCrypt.encode(signUpDto.getPassword())
+                signUpRequest.getEmail(),
+                signUpRequest.getUserName(),
+                passwordEncoder.encode(signUpRequest.getPassword()),
+                roles
         ));
-        return signUpDto.getUserName();
+        String token = jwtUtils.generateTokenFromUserName(signUpRequest.getUserName());
+        return new AuthResponse(token);
     }
 
 }

@@ -7,10 +7,11 @@ import com.example.todoapp.repositories.NoteRepository;
 import com.example.todoapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Transactional
 @Service
 public class NoteService {
     @Autowired
@@ -22,7 +23,7 @@ public class NoteService {
         return noteRepository.findById(id).orElse(null);
     }
     public List<NoteDto> getAllNotes(String userName){
-        User user = userRepository.findUserByUserName(userName);
+        User user = userRepository.findUserByUserName(userName).orElse(null);
         return noteRepository.findNoteByUserId(user.getId())
                 .stream()
                 .map(note -> new NoteDto(
@@ -35,7 +36,7 @@ public class NoteService {
                 .collect(Collectors.toList());
     }
     public void addNote(NoteDto noteDto){
-        User user = userRepository.findUserByUserName(noteDto.getUserName());
+        User user = userRepository.findUserByUserName(noteDto.getUserName()).orElse(null);
         noteRepository.save(new Note(noteDto.getName(),noteDto.getDescription(),noteDto.isDone(),user));
     }
 

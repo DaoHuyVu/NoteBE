@@ -1,4 +1,4 @@
-package com.example.todoapp.expception;
+package com.example.todoapp.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,5 +7,4 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserExistException extends RuntimeException{
     private String message;
-    private int status;
 }

@@ -1,4 +1,4 @@
-package com.example.todoapp.expception;
+package com.example.todoapp.exception;
 
 import lombok.AllArgsConstructor;
 
@@ -10,5 +10,4 @@ import lombok.Getter;
 
 public class IncorrectLoginCredential extends RuntimeException{
     private String message;
-    private int status;
 }
