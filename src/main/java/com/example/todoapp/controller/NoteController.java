@@ -1,40 +1,43 @@
 package com.example.todoapp.controller;
 
 import com.example.todoapp.dto.NoteDto;
-import com.example.todoapp.models.Note;
+import com.example.todoapp.response.NotesPayload;
+import com.example.todoapp.response.NotePayload;
+import com.example.todoapp.response.Response;
 import com.example.todoapp.services.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class NoteController {
     @Autowired
     private NoteService noteService;
-    @PostMapping("api/v1/note")
-    public ResponseEntity<String> addNote(@RequestBody NoteDto note){
-        noteService.addNote(note);
-        return new ResponseEntity<>("Add note successfully", HttpStatus.OK);
+    @PostMapping("/note")
+    public ResponseEntity<Response<NotePayload>> addNote(@RequestBody NoteDto n){
+        Response<NotePayload> note = noteService.addNote(n);
+        return new ResponseEntity<>(note,HttpStatus.CREATED);
     }
-    @GetMapping("api/v1/notes")
-    public List<NoteDto> getAllNotes(@RequestBody String userName){
-        return noteService.getAllNotes(userName);
+    @GetMapping("/notes")
+    public ResponseEntity<NotesPayload> getAllNotes(){
+        NotesPayload notes = noteService.getAllNotes();
+        return ResponseEntity.ok().body(notes);
     }
-    @GetMapping("api/v1/notes/{id}")
-    public Note getNoteById(@PathVariable long id){
-        return noteService.getNoteById(id);
+    @GetMapping("/notes/{id}")
+    public ResponseEntity<NotePayload> getNoteById(@PathVariable long id){
+        NotePayload note = noteService.getNoteDtoById(id);
+        return ResponseEntity.ok().body(note);
     }
-    @DeleteMapping("api/v1/notes/{id}")
-    public String deleteNoteById(@PathVariable long id){
-        noteService.deleteNote(id);
-        return "Note " + id + " deleted";
+    @DeleteMapping("/notes/{id}")
+    public ResponseEntity<Response<NotePayload>> deleteNoteById(@PathVariable long id){
+        Response<NotePayload> response = noteService.deleteNote(id);
+        return ResponseEntity.ok().body(response);
     }
-    @PatchMapping("api/v1/notes/{id}")
-    public Note updateNote(@RequestBody Note note){
-        return noteService.updateNote(note);
+    @PutMapping("/notes/{id}")
+    public ResponseEntity<Response<NotePayload>> updateNote(@RequestBody NoteDto n,@PathVariable long id){
+        Response<NotePayload> response = noteService.updateNote(n,id);
+        return ResponseEntity.ok().body(response);
     }
 
 }

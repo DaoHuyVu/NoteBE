@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class UserNotFoundException extends RuntimeException{
+public class ResourceNotFoundException extends RuntimeException{
     private String message ;
 }

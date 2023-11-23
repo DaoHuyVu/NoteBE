@@ -1,17 +1,11 @@
 package com.example.todoapp.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+
 @NoArgsConstructor
 @Entity(name = "User")
 @Data

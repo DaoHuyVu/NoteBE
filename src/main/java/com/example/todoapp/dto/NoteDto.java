@@ -10,16 +10,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NoteDto {
-    long id;
+    private long id;
     private String name;
     private String description;
     private boolean done;
-    private String userName;
 
-    public NoteDto(String name, String description, boolean done, String userName) {
+    public NoteDto(String name, String description, boolean done) {
         this.name = name;
         this.description = description;
         this.done = done;
-        this.userName = userName;
     }
 }

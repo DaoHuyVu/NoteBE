@@ -1,52 +1,52 @@
 package com.example.todoapp.exceptionHandler;
 
 
-import com.example.todoapp.response.MessageResponse;
-import com.example.todoapp.exception.IncorrectLoginCredential;
+import com.example.todoapp.exception.ResourceNotFoundException;
+import com.example.todoapp.exception.TokenExpireException;
 import com.example.todoapp.exception.UserExistException;
-import com.example.todoapp.exception.UserNotFoundException;
+import com.example.todoapp.response.ErrorResponse;
+import com.example.todoapp.response.NotePayload;
+import com.example.todoapp.response.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Date;
 
 @RestControllerAdvice
 public class UserExceptionHandler extends ResponseEntityExceptionHandler {
-
-    @ExceptionHandler({UserNotFoundException.class})
-    public ResponseEntity<MessageResponse> handleUserNotFound(UserNotFoundException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        return new ResponseEntity<>(new MessageResponse(new Date(),"User not found"),status);
-    }
-
-    @ExceptionHandler({IncorrectLoginCredential.class})
-    public ResponseEntity<MessageResponse> handleIncorrectCredential(IncorrectLoginCredential e) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
-        return new ResponseEntity<>(
-                new MessageResponse(new Date(), e.getMessage()),
-                status
-        );
-    }
-
     @ExceptionHandler({UserExistException.class})
-    public ResponseEntity<MessageResponse> handleUserExist(UserExistException e) {
+    public ResponseEntity<ErrorResponse> handleUserExist(UserExistException e) {
         HttpStatus status = HttpStatus.CONFLICT;
         return new ResponseEntity<>(
-                new MessageResponse(new Date(), e.getMessage()),
+                new ErrorResponse(new Date(),e.getMessage(),status),
                 status
         );
     }
     @ExceptionHandler({AuthenticationException.class})
-    public ResponseEntity<MessageResponse> handleAuthentication(AuthenticationException e){
+    public ResponseEntity<ErrorResponse> handleAuthentication(Exception e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<>(
+                new ErrorResponse(new Date(), e.getMessage(),status),
+                status
+        );
+    }
+    @ExceptionHandler({ ResourceNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(Exception e){
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(
+                new ErrorResponse(new Date(), e.getMessage(),status),
+                status
+        );
+    }
+    @ExceptionHandler({ TokenExpireException.class})
+    public ResponseEntity<ErrorResponse> handleTokenExpire(Exception e){
         HttpStatus status = HttpStatus.FORBIDDEN;
         return new ResponseEntity<>(
-                new MessageResponse(new Date(),e.getMessage()),
+                new ErrorResponse(new Date(), e.getMessage(),status),
                 status
         );
     }

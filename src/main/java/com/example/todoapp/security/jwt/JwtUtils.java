@@ -1,6 +1,7 @@
 package com.example.todoapp.security.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,14 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     @Value("${jwtSecret}")
     private String jwtSecret;
-    @Value(("${jwtExpiration}"))
-    private long jwtExpiration;
+    @Value("${accessTokenExpirationTest}")
+    private long accessTokenExpiration;
+
+    @Value("${refreshTokenExpirationTest}")
+    private long refreshTokenExpiration;
     private SecretKey key(){
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        byte[] keyByte = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyByte);
     }
     public String getUserNameFromJwt(String token){
         return Jwts.parser()
@@ -31,7 +36,7 @@ public class JwtUtils {
     }
     public boolean validateToken(String token){
         try{
-            Jwts.parser().verifyWith(key()).build().parse(token);
+            Jwts.parser().verifyWith(key()).build().parseSignedClaims(token);
             return true;
         }catch(MalformedJwtException e){
             logger.error("Invalid jwt token: {}",e.getMessage());
@@ -42,13 +47,23 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
+
         return false;
     }
     public String generateTokenFromUserName(String userName){
         return Jwts
                 .builder()
                 .subject(userName)
-                .expiration(new Date(new Date().getTime() + jwtExpiration))
+                .expiration(new Date(new Date().getTime() + accessTokenExpiration))
+                .issuedAt(new Date())
+                .signWith(key())
+                .compact();
+    }
+    public String generateRefreshTokenFromUserName(String userName){
+        return Jwts
+                .builder()
+                .subject(userName)
+                .expiration(new Date(new Date().getTime() + refreshTokenExpiration))
                 .issuedAt(new Date())
                 .signWith(key())
                 .compact();

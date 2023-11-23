@@ -15,7 +15,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Component("authEntryPointJwt")
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
-    private final static Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
