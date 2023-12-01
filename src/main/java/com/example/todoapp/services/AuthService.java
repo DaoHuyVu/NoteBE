@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,8 @@ import java.util.Set;
 
 @Transactional
 @Service
-public class AuthService {
+public class AuthService extends AccessDeniedHandlerImpl {
+
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired

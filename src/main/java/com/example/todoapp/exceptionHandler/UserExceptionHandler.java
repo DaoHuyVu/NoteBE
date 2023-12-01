@@ -9,6 +9,7 @@ import com.example.todoapp.response.NotePayload;
 import com.example.todoapp.response.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,6 +45,14 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     }
     @ExceptionHandler({ TokenExpireException.class})
     public ResponseEntity<ErrorResponse> handleTokenExpire(Exception e){
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        return new ResponseEntity<>(
+                new ErrorResponse(new Date(), e.getMessage(),status),
+                status
+        );
+    }
+    @ExceptionHandler({ AccessDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleAccessDenied(Exception e){
         HttpStatus status = HttpStatus.FORBIDDEN;
         return new ResponseEntity<>(
                 new ErrorResponse(new Date(), e.getMessage(),status),

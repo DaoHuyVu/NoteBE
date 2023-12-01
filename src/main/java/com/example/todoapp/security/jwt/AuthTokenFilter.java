@@ -37,7 +37,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         try{
-
             String jwt;
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if(authHeader == null || !authHeader.startsWith("Bearer ")){
@@ -52,7 +51,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         = new UsernamePasswordAuthenticationToken(userDetail,null,userDetail.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                logger.info(authenticationToken.toString());
             }
         }catch (Exception e){
             logger.error("Cannot set authentication : {}",e.getMessage());
