@@ -10,10 +10,6 @@ import java.util.Date;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Response<T>{
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date timeStamp;
-    private HttpStatus status;
+public class Response{
     private String message;
-    private T payload;
 }

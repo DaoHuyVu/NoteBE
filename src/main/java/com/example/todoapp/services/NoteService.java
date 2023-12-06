@@ -6,8 +6,6 @@ import com.example.todoapp.models.Note;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.NoteRepository;
 import com.example.todoapp.repositories.UserRepository;
-import com.example.todoapp.response.NotesPayload;
-import com.example.todoapp.response.NotePayload;
 import com.example.todoapp.response.Response;
 import com.example.todoapp.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
@@ -34,32 +32,31 @@ public class NoteService {
     @Autowired
     private UserRepository userRepository;
 
-    public NotePayload getNoteDtoById(long id) {
+    public NoteDto getNoteDtoById(long id) {
         UserDetails userDetails = getUserDetail();
             NoteDto note = noteRepository.findByIdAndUsername(id, userDetails.getUsername());
             if(note == null) throw new ResourceNotFoundException("Note not found");
-        return new NotePayload(note);
+        return note;
     }
-    public NotesPayload getAllNotes(){
+    public List<NoteDto> getAllNotes(){
         UserDetails userDetails = getUserDetail();
-        List<NoteDto> notes = noteRepository.findByUsername(userDetails.getUsername());
-        return new NotesPayload(notes);
+        return noteRepository.findByUsername(userDetails.getUsername());
     }
-    public Response<NotePayload> addNote(NoteDto noteDto){
+    public Response addNote(NoteDto noteDto){
         UserDetailsImpl userDetails = (UserDetailsImpl) getUserDetail();
         User user = userRepository.getReferenceById(userDetails.getId());
         noteRepository.save(new Note(noteDto.getName(),noteDto.getDescription(),noteDto.isDone(),user));
-        return new Response<>(new Date(), HttpStatus.CREATED,"Add note successfully",null);
+        return new Response("Add note successfully");
     }
 
-    public Response<NotePayload> deleteNote(long id){
+    public Response deleteNote(long id){
          UserDetails userDetails = getUserDetail();
          NoteDto note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
          if(note == null) throw new ResourceNotFoundException("Note not found");
          noteRepository.deleteById(id);
-         return new Response<>(new Date(),HttpStatus.OK,"Delete successfully",null);
+         return new Response("Delete successfully");
     }
-    public Response<NotePayload> updateNote(NoteDto n,long id){
+    public Response updateNote(NoteDto n,long id){
         UserDetails userDetails = getUserDetail();
         NoteDto note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
         if(note == null) throw new ResourceNotFoundException("Note not found");
@@ -67,7 +64,7 @@ public class NoteService {
         note.setDone(n.isDone());
         note.setDescription(n.getDescription());
         noteRepository.updateNote(note);
-        return new Response<>(new Date(),HttpStatus.OK,"Update successfully",null);
+        return new Response("Update successfully");
     }
     private UserDetails getUserDetail(){
         return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -9,7 +9,7 @@ import com.example.todoapp.exception.UserExistException;
 import com.example.todoapp.request.LoginRequest;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.UserRepository;
-import com.example.todoapp.response.AuthPayload;
+import com.example.todoapp.response.AuthResponse;
 import com.example.todoapp.response.Response;
 import com.example.todoapp.security.jwt.JwtUtils;
 import com.example.todoapp.security.services.UserDetailsImpl;
@@ -45,7 +45,7 @@ public class AuthService extends AccessDeniedHandlerImpl {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RoleRepo roleRepo;
-    public Response<AuthPayload> login(LoginRequest loginRequest){
+    public AuthResponse login(LoginRequest loginRequest){
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -59,13 +59,9 @@ public class AuthService extends AccessDeniedHandlerImpl {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String accessToken = jwtUtils.generateTokenFromUserName(userDetails.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-        return new Response<>(
-                new Date(),
-                HttpStatus.OK,
-                "Login successfully",
-                new AuthPayload(accessToken,refreshToken.getToken()));
+        return new AuthResponse(accessToken,refreshToken.getToken());
     }
-    public Response<AuthPayload> signUp(SignUpRequest signUpRequest){
+    public AuthResponse signUp(SignUpRequest signUpRequest){
         if(userRepository.existsByUserName(signUpRequest.getUserName()))
             throw new UserExistException("User already exist");
 
@@ -82,11 +78,7 @@ public class AuthService extends AccessDeniedHandlerImpl {
         ));
         String token = jwtUtils.generateTokenFromUserName(user.getUserName());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-        return new Response<>(
-                new Date(),
-                HttpStatus.OK,
-                "Sign up successfully",
-                new AuthPayload(token,refreshToken.getToken()));
+        return new AuthResponse(token,refreshToken.getToken());
     }
 
 }

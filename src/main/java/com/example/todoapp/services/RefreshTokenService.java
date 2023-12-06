@@ -6,21 +6,17 @@ import com.example.todoapp.models.RefreshToken;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.RefreshTokenRepo;
 import com.example.todoapp.repositories.UserRepository;
-import com.example.todoapp.response.AuthPayload;
+import com.example.todoapp.response.AuthResponse;
 import com.example.todoapp.response.Response;
 import com.example.todoapp.security.jwt.JwtUtils;
-import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
@@ -51,18 +47,13 @@ public class RefreshTokenService {
         }
         return token;
     }
-    public Response<AuthPayload> getRefreshToken(String refreshToken){
+    public AuthResponse getRefreshToken(String refreshToken){
         return findByToken(refreshToken)
                 .map(this::verifyTokenExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String accessToken = jwtUtils.generateTokenFromUserName(user.getUserName());
-                    return new Response<>(
-                            new Date(),
-                            HttpStatus.OK,
-                            "Get refresh token successfully",
-                            new AuthPayload(accessToken,refreshToken)
-                    );
+                    return new AuthResponse(accessToken,refreshToken);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Refresh token is not in database"));
     }
