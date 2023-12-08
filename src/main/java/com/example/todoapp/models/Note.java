@@ -1,5 +1,6 @@
 package com.example.todoapp.models;
 
+import com.example.todoapp.dto.NoteDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,11 +11,11 @@ import lombok.*;
 @Table(name="note")
 public class Note {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String description;
-    private boolean done;
+    private Boolean done;
     @ManyToOne(fetch =  FetchType.LAZY)
     private User user;
 
@@ -23,5 +24,8 @@ public class Note {
         this.description = description;
         this.done = done;
         this.user = user;
+    }
+    public NoteDto toNoteDto(){
+        return new NoteDto(id,name,description,done);
     }
 }

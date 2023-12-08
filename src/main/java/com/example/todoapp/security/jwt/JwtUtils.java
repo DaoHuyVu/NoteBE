@@ -16,10 +16,10 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     @Value("${jwtSecret}")
     private String jwtSecret;
-    @Value("${accessTokenExpirationTest}")
+    @Value("${accessTokenExpiration}")
     private long accessTokenExpiration;
 
-    @Value("${refreshTokenExpirationTest}")
+    @Value("${refreshTokenExpiration}")
     private long refreshTokenExpiration;
     private SecretKey key(){
         byte[] keyByte = Decoders.BASE64.decode(jwtSecret);

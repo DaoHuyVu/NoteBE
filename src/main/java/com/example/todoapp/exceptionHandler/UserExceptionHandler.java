@@ -4,6 +4,7 @@ package com.example.todoapp.exceptionHandler;
 import com.example.todoapp.exception.ResourceNotFoundException;
 import com.example.todoapp.exception.TokenExpireException;
 import com.example.todoapp.exception.UserExistException;
+import com.example.todoapp.exception.WrongFieldException;
 import com.example.todoapp.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,14 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ AccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleAccessDenied(Exception e){
         HttpStatus status = HttpStatus.FORBIDDEN;
+        return new ResponseEntity<>(
+                new ErrorResponse(new Date(), e.getMessage(),status),
+                status
+        );
+    }
+    @ExceptionHandler({WrongFieldException.class})
+    public ResponseEntity<ErrorResponse> handleWrongFieldException(Exception e){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(
                 new ErrorResponse(new Date(), e.getMessage(),status),
                 status
