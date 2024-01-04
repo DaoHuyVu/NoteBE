@@ -23,12 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.NumberUtils;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-@Transactional
+@Transactional(readOnly = true)
 @Service
 
 public class NoteService {
@@ -42,61 +49,65 @@ public class NoteService {
 
     public NoteDto getNoteDtoById(long id) {
         UserDetails userDetails = getUserDetail();
-            NoteDto note = noteRepository.findByIdAndUsername(id, userDetails.getUsername());
+            Note note = noteRepository.findByIdAndUsername(id, userDetails.getUsername());
             if(note == null) throw new ResourceNotFoundException("Note not found");
-        return note;
+        return note.toNoteDto();
     }
     public List<NoteDto> getAllNotes(){
         UserDetails userDetails = getUserDetail();
-        return noteRepository.findByUsername(userDetails.getUsername());
+        return noteRepository.findByUsername(userDetails.getUsername()).stream().map(Note::toNoteDto).toList();
     }
-    public NoteDto addNote(NoteDto noteDto){
-        UserDetailsImpl userDetails = (UserDetailsImpl) getUserDetail();
+    @Transactional
+    public NoteDto addNote(String name,String description,String createdAt,String done){
+
+        UserDetailsImpl userDetails = getUserDetail();
         User user = userRepository.getReferenceById(userDetails.getId());
         Note note = noteRepository.save(
                 new Note(
-                        noteDto.getName().trim(),
-                        noteDto.getDescription().trim(),
-                        noteDto.getDone(),
+                        name.trim(),
+                        description.trim(),
+                        LocalDateTime.ofInstant(
+                                Instant.ofEpochMilli(Long.parseLong(createdAt)),
+                                ZoneId.of("UTC+0")),
+                        Boolean.parseBoolean(done),
                         user));
         return note.toNoteDto();
     }
-
+    @Transactional
     public NoteDto deleteNote(long id){
          UserDetails userDetails = getUserDetail();
-         NoteDto note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
+         Note note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
          if(note == null) throw new ResourceNotFoundException("Note not found");
          noteRepository.deleteById(id);
-         return note;
+         return note.toNoteDto();
     }
-    public NoteDto updateNote(NoteDto n,long id){
+    @Transactional
+    public NoteDto updateNote(String name,String description,long id){
         UserDetails userDetails = getUserDetail();
-        NoteDto note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
+        Note note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
         if(note == null) throw new ResourceNotFoundException("Note not found");
-        note.setName(n.getName().trim());
-        note.setDone(n.getDone());
-        note.setDescription(n.getDescription().trim());
-        noteRepository.updateNote(note);
-        return note;
+        note.setName(name.trim());
+        note.setDescription(description.trim());
+        return note.toNoteDto();
     }
-    public NoteDto patchNote(Map<String,Object> changes, long id){
+    @Transactional
+    public NoteDto patchNote(Map<String,String> changes, long id){
         UserDetailsImpl user = getUserDetail();
-        NoteDto note = noteRepository.findByIdAndUsername(id, user.getUsername());
+        Note note = noteRepository.findByIdAndUsername(id, user.getUsername());
         if(note == null) throw new ResourceNotFoundException("Note not found");
 
         changes.forEach((key,value) -> {
-            Field field = ReflectionUtils.findField(NoteDto.class,key);
+            Field field = ReflectionUtils.findField(Note.class,key);
             if(field != null){
                 ReflectionUtils.makeAccessible(field);
-                if(value.getClass().equals(String.class)){
-                    value = ((String) value).trim();
+                if(field.getType().getCanonicalName().equals(Boolean.class.getCanonicalName())){
+                    ReflectionUtils.setField(field,note,Boolean.valueOf(value));
                 }
-                ReflectionUtils.setField(field,note,value);
+                else ReflectionUtils.setField(field,note,value.trim());
             }
             else throw new WrongFieldException("Wrong field : " + key);
         });
-        noteRepository.updateNote(note);
-        return note;
+        return note.toNoteDto();
     }
 
     private UserDetailsImpl getUserDetail(){

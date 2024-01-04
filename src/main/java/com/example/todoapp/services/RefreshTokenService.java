@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @Service
 public class RefreshTokenService {
-    @Value(value = "${refreshTokenExpirationTest}")
+    @Value(value = "${refreshTokenExpiration}")
     private long refreshTokenExpiration;
     @Autowired
     private RefreshTokenRepo refreshTokenRepo;
@@ -32,7 +32,7 @@ public class RefreshTokenService {
         return refreshTokenRepo.findByToken(token);
     }
     public RefreshToken createRefreshToken(long id){
-        RefreshToken token = null;
+        RefreshToken token;
         Optional<RefreshToken> refreshToken = refreshTokenRepo.findById(id);
         if(refreshToken.isPresent()){
             token = refreshToken.get();
@@ -47,7 +47,7 @@ public class RefreshTokenService {
         }
         return token;
     }
-    public AuthResponse getRefreshToken(String refreshToken){
+    public AuthResponse getNewAccessToken(String refreshToken){
         return findByToken(refreshToken)
                 .map(this::verifyTokenExpiration)
                 .map(RefreshToken::getUser)

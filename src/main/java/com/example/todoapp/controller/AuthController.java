@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 
 @RestController
@@ -32,15 +33,15 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signUp(
+    public ResponseEntity<?> signUp(
             @RequestBody SignUpRequest signUpRequest,
             @RequestHeader(name = "Accept-Version",defaultValue = "1.0.0",required = false) String version){
-        AuthResponse response = authService.signUp(signUpRequest);
+        Response response = authService.signUp(signUpRequest);
         return ResponseEntity.ok().body(response);
     }
     @PostMapping("/refreshToken")
-    public ResponseEntity<AuthResponse> getRefreshToken(@RequestBody @Valid RefreshTokenRequest request){
-        AuthResponse response = refreshTokenService.getRefreshToken(request.getRefreshToken());
+    public ResponseEntity<AuthResponse> getNewAccessToken(@RequestBody @Valid RefreshTokenRequest request){
+        AuthResponse response = refreshTokenService.getNewAccessToken(request.getRefreshToken());
         return ResponseEntity.ok().body(response);
     }
 

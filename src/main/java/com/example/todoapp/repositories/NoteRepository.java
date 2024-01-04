@@ -17,22 +17,15 @@ public interface NoteRepository extends JpaRepository<Note,Long>{
     @Modifying(flushAutomatically = true,clearAutomatically = true)
     void deleteById(long id);
     @Query("""
-            SELECT new com.example.todoapp.dto.NoteDto(n.id,n.name,n.description,n.done)\s
+            SELECT new com.example.todoapp.models.Note(n.id,n.name,n.description,n.done,n.createdAt)\s
             from Note n join n.user u \s
             where u.userName = :userName\s
             """)
-    List<NoteDto> findByUsername(@Param("userName") String userName);
+    List<Note> findByUsername(@Param("userName") String userName);
     @Query("""
-            SELECT new com.example.todoapp.dto.NoteDto(n.id,n.name,n.description,n.done)
+            SELECT n
             from Note n join n.user u
             where u.userName = :userName and n.id = :id
             """)
-    NoteDto findByIdAndUsername(long id, String userName);
-    @Query("""
-            Update Note n \s
-            set n.name = :#{#note.name},n.description = :#{#note.description},n.done = :#{#note.done}
-            where n.id = :#{#note.id}
-            """)
-    @Modifying(flushAutomatically = true,clearAutomatically = true)
-    void updateNote(@Param("note") NoteDto note);
+    Note findByIdAndUsername(long id, String userName);
 }

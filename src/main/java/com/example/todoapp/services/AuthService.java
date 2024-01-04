@@ -61,7 +61,7 @@ public class AuthService extends AccessDeniedHandlerImpl {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
         return new AuthResponse(accessToken,refreshToken.getToken());
     }
-    public AuthResponse signUp(SignUpRequest signUpRequest){
+    public Response signUp(SignUpRequest signUpRequest){
         if(userRepository.existsByUserName(signUpRequest.getUserName()))
             throw new UserExistException("User already exist");
 
@@ -76,9 +76,7 @@ public class AuthService extends AccessDeniedHandlerImpl {
                 passwordEncoder.encode(signUpRequest.getPassword()),
                 roles
         ));
-        String token = jwtUtils.generateTokenFromUserName(user.getUserName());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-        return new AuthResponse(token,refreshToken.getToken());
+        return new Response("Sign up successfully");
     }
 
 }

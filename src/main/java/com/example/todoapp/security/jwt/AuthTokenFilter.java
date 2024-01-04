@@ -39,6 +39,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try{
             String jwt;
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            logger.error(authHeader);
             if(authHeader == null || !authHeader.startsWith("Bearer ")){
                 filterChain.doFilter(request,response);
                 return;

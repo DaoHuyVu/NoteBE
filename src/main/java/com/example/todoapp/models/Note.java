@@ -4,6 +4,8 @@ import com.example.todoapp.dto.NoteDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Data
 @NoArgsConstructor
@@ -16,16 +18,26 @@ public class Note {
     private String name;
     private String description;
     private Boolean done;
+    private LocalDateTime createdAt;
     @ManyToOne(fetch =  FetchType.LAZY)
     private User user;
 
-    public Note(String name, String description, boolean done, User user) {
+    public Note(Long id, String name, String description, Boolean done, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.done = done;
+        this.createdAt = createdAt;
+    }
+
+    public Note(String name, String description, LocalDateTime createdAt, boolean done, User user) {
         this.name = name;
         this.description = description;
         this.done = done;
         this.user = user;
+        this.createdAt = createdAt;
     }
     public NoteDto toNoteDto(){
-        return new NoteDto(id,name,description,done);
+        return new NoteDto(id,name,description,done,createdAt);
     }
 }
