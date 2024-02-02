@@ -7,33 +7,29 @@ import com.example.todoapp.models.Note;
 import com.example.todoapp.models.User;
 import com.example.todoapp.repositories.NoteRepository;
 import com.example.todoapp.repositories.UserRepository;
-import com.example.todoapp.response.Response;
 import com.example.todoapp.security.services.UserDetailsImpl;
-import jakarta.persistence.EntityManager;
-import org.apache.el.util.ReflectionUtil;
-import org.aspectj.util.Reflection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.NumberUtils;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Transactional(readOnly = true)
 @Service
@@ -53,9 +49,26 @@ public class NoteService {
             if(note == null) throw new ResourceNotFoundException("Note not found");
         return note.toNoteDto();
     }
-    public List<NoteDto> getAllNotes(){
-        UserDetails userDetails = getUserDetail();
-        return noteRepository.findByUsername(userDetails.getUsername()).stream().map(Note::toNoteDto).toList();
+    public Map<String,Object> getAllNotes(Integer page,Integer size,String[] sort){
+        List<Sort.Order> orders = new ArrayList<>();
+        if(sort[0].contains(",")){
+            for(String sortOrder : sort){
+                String[] _sort = sortOrder.split(",");
+                orders.add(new Sort.Order(Sort.Direction.valueOf(_sort[1]),_sort[0]));
+            }
+        }
+        else {
+            orders.add(new Sort.Order(Sort.Direction.valueOf(sort[1]),sort[0]));
+        }
+        Pageable request = PageRequest.of(page,size,Sort.by(orders));
+        Page<NoteDto> dtoPage = noteRepository.getNotes(request,getUserDetail().getId());
+        Map<String,Object> map =  new HashMap<>();
+        map.put("notes",dtoPage.getContent());
+        map.put("totalPages",dtoPage.getTotalPages());
+        // page index is zero-based
+        map.put("currentPage",dtoPage.getNumber()+1);
+        map.put("totalItems",dtoPage.getTotalElements());
+        return map;
     }
     @Transactional
     public NoteDto addNote(String name,String description,String createdAt,String done){

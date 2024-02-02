@@ -1,8 +1,10 @@
 package com.example.todoapp.models;
 
 import com.example.todoapp.dto.NoteDto;
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
 
@@ -21,14 +23,6 @@ public class Note {
     private LocalDateTime createdAt;
     @ManyToOne(fetch =  FetchType.LAZY)
     private User user;
-
-    public Note(Long id, String name, String description, Boolean done, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.done = done;
-        this.createdAt = createdAt;
-    }
 
     public Note(String name, String description, LocalDateTime createdAt, boolean done, User user) {
         this.name = name;

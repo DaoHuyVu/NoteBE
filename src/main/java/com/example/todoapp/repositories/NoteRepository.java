@@ -2,6 +2,8 @@ package com.example.todoapp.repositories;
 
 import com.example.todoapp.dto.NoteDto;
 import com.example.todoapp.models.Note;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,4 +30,11 @@ public interface NoteRepository extends JpaRepository<Note,Long>{
             where u.userName = :userName and n.id = :id
             """)
     Note findByIdAndUsername(long id, String userName);
+    @Query("""
+            Select new com.example.todoapp.dto.NoteDto(
+            n.id,n.name,n.description,n.done,n.createdAt
+            )
+            from Note n where n.user.id = :id
+            """)
+    Page<NoteDto> getNotes(Pageable pageable,Long id);
 }

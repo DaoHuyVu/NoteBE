@@ -1,21 +1,15 @@
 package com.example.todoapp.controller;
 
 import com.example.todoapp.dto.NoteDto;
-import com.example.todoapp.models.Note;
 import com.example.todoapp.services.NoteService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +29,13 @@ public class NoteController {
         return new ResponseEntity<>(note,HttpStatus.CREATED);
     }
     @GetMapping("/note")
-    public ResponseEntity<?> getAllNotes(){
-        List<NoteDto> notes = noteService.getAllNotes();
-        return ResponseEntity.ok().body(notes);
+    public ResponseEntity<?> getAllNotes(
+            @RequestParam(required = false,defaultValue = "1") Integer page,
+            @RequestParam(required = false,defaultValue = "10") Integer size,
+            @RequestParam(required = false,defaultValue = "id,DESC") String[] sort
+    ){
+        //Adjust the page since page is zero-based
+        return ResponseEntity.ok().body(noteService.getAllNotes(page-1,size,sort));
     }
     @GetMapping("/note/{id}")
     public ResponseEntity<?> getNoteById(@PathVariable long id){
@@ -65,4 +63,5 @@ public class NoteController {
         NoteDto note = noteService.patchNote(fields,id);
         return ResponseEntity.ok().body(note);
     }
+
 }
