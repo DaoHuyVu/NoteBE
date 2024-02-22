@@ -17,7 +17,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-
+@SuppressWarnings("unused")
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     @Value("${jwtSecret}")

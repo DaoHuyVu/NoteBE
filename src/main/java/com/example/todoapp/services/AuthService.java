@@ -1,7 +1,7 @@
 package com.example.todoapp.services;
 
 import com.example.todoapp.Constants;
-import com.example.todoapp.exception.SessionExpired;
+import com.example.todoapp.exception.SessionExpiredException;
 import com.example.todoapp.exception.UserExistException;
 import com.example.todoapp.models.*;
 import com.example.todoapp.repositories.RefreshTokenRepository;
@@ -115,7 +115,7 @@ public class AuthService  {
         refreshTokenRepository.save(refreshTokenEntity);
         return jwtUtils.generateRefreshTokenFromUserName(now,userName,id,refreshTokenEntity.getId());
     }
-    @Transactional(noRollbackFor = SessionExpired.class)
+    @Transactional(noRollbackFor = SessionExpiredException.class)
     public AuthResponse refreshToken(String refreshToken){
         String userName = jwtUtils.getUserNameFromJwt(refreshToken);
         Long userId = jwtUtils.getUserIdFromJwt(refreshToken);
@@ -123,11 +123,11 @@ public class AuthService  {
             refreshTokenRepository.deleteById(Long.valueOf(jwtUtils.getJTI(refreshToken)));
             return new AuthResponse(
                     jwtUtils.generateAccessTokenFromUserName(userName,userId),
-                    createRefreshToken(userId,jwtUtils.getJTI(refreshToken))
+                    createRefreshToken(userId,userName)
             );
         }
         refreshTokenRepository.deleteByUserId(userId);
-        throw new SessionExpired("Session expired, please make another login");
+        throw new SessionExpiredException("Session expired, please make another login");
     }
     private Boolean isRefreshTokenValid(String token,Long userId){
         return refreshTokenRepository

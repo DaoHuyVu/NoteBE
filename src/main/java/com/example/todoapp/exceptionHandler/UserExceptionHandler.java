@@ -3,7 +3,9 @@ package com.example.todoapp.exceptionHandler;
 
 import com.example.todoapp.exception.*;
 import com.example.todoapp.response.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,8 +16,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 @SuppressWarnings("unused")
 public class UserExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({UserExistException.class})
-    public ResponseEntity<ErrorResponse> handleUserExist(UserExistException e) {
+    @ExceptionHandler({
+            UserExistException.class
+    })
+    public ResponseEntity<ErrorResponse> handleConflictException(Exception e) {
         HttpStatus status = HttpStatus.CONFLICT;
         return new ResponseEntity<>(
                 new ErrorResponse(e.getMessage(),status),
@@ -23,11 +27,22 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
     @ExceptionHandler({
+            SessionExpiredException.class,
+            JwtException.class
+    })
+    public ResponseEntity<ErrorResponse> handleSessionExpiredException(Exception e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        HttpHeaders header = new HttpHeaders();
+        header.add("X-Auth-Status","Expired");
+        return new ResponseEntity<>(
+                new ErrorResponse(e.getMessage(),status),
+                header,
+                status
+        );
+    }
+    @ExceptionHandler({
             AuthenticationException.class,
-            TokenExpireException.class,
             TokenBlacklistedException.class,
-            JwtException.class,
-            SessionExpired.class
     })
     public ResponseEntity<ErrorResponse> handleAuthentication(Exception e){
         HttpStatus status = HttpStatus.UNAUTHORIZED;
@@ -40,7 +55,7 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResourceNotFound(Exception e){
         HttpStatus status = HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(
-                new ErrorResponse( e.getMessage(),status),
+                new ErrorResponse(e.getMessage(),status),
                 status
         );
     }

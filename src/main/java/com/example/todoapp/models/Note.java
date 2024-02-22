@@ -1,14 +1,9 @@
 package com.example.todoapp.models;
 
 import com.example.todoapp.dto.NoteDto;
-import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.redis.core.RedisHash;
-
 import java.time.LocalDateTime;
-
-
 @Data
 @NoArgsConstructor
 @Entity(name="Note")

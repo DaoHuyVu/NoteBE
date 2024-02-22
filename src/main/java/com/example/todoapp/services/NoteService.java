@@ -94,15 +94,7 @@ public class NoteService {
          noteRepository.deleteById(id);
          return note.toNoteDto();
     }
-    @Transactional
-    public NoteDto updateNote(String name,String description,long id){
-        UserDetails userDetails = getUserDetail();
-        Note note = noteRepository.findByIdAndUsername(id,userDetails.getUsername());
-        if(note == null) throw new ResourceNotFoundException("Note not found");
-        note.setName(name.trim());
-        note.setDescription(description.trim());
-        return note.toNoteDto();
-    }
+
     @Transactional
     public NoteDto patchNote(Map<String,String> changes, long id){
         UserDetailsImpl user = getUserDetail();

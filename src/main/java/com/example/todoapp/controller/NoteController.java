@@ -47,14 +47,6 @@ public class NoteController {
         NoteDto note = noteService.deleteNote(Long.parseLong(id));
         return ResponseEntity.ok().body(note);
     }
-    @PutMapping("/note/{id}")
-    public ResponseEntity<?> updateNote(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @PathVariable long id){
-        NoteDto note = noteService.updateNote(name,description,id);
-        return ResponseEntity.ok().body(note);
-    }
     @PatchMapping("/note/{id}")
     public ResponseEntity<?> patchNote(
             @PathVariable Long id,

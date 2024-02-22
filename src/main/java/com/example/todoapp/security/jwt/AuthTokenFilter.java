@@ -2,15 +2,10 @@ package com.example.todoapp.security.jwt;
 
 import com.example.todoapp.response.ExceptionHandler;
 import com.example.todoapp.security.services.UserDetailsServiceImp;
-import io.jsonwebtoken.ClaimJwtException;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +47,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 filterChain.doFilter(request,response);
             }
+        }
+        catch(JwtException exception){
+            ExceptionHandler.handleJwtException(exception.getMessage(), response);
         }
         catch (Exception e){
             ExceptionHandler.handleBadRequestException(e.getMessage(),response);
